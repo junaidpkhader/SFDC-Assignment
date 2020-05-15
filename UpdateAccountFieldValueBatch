@@ -1,0 +1,23 @@
+global class UpdateAccountFieldValueBatch implements Database.Batchable<sObject> {
+    
+global Database.QueryLocator start(Database.BatchableContext BC){
+            ID recordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Customer Account').getRecordTypeId();
+
+		return Database.getQueryLocator([SELECT Id, Enterprise_Account_Status__c FROM Account where Enterprise_Account_Status__c=null and RecordType.ID IN : recordTypeId]);
+	}
+
+	global void execute(Database.BatchableContext BC, List<Account> accList) {
+
+		for(Account acct : accList){
+            if(String.isBlank(acct.Enterprise_Account_Status__c) || acct.Enterprise_Account_Status__c == null){
+			acct.Enterprise_Account_Status__c = 'Bronze';
+            }
+           
+		}
+		update accList;
+	}
+
+	global void finish(Database.BatchableContext BC) {
+	}
+    
+}
